@@ -138,6 +138,19 @@ public:
 	/** Returns FirstPersonCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
+
+public:
+	virtual void Jump() override;
+
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UMG, Meta = (AllowPrivateAccess = true))
+	TSubclassOf<class UGameHUD> GameHUDClass;
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget, Meta = (AllowPrivateAccess = true))
+	class UGameHUD* GameHUDReference;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Character")
 	float HealthValue;

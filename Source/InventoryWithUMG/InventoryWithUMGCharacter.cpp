@@ -1,4 +1,4 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "InventoryWithUMGCharacter.h"
 #include "InventoryWithUMGProjectile.h"
@@ -11,6 +11,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
+#include "UObject/ConstructorHelpers.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameHUD.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -83,7 +86,15 @@ AInventoryWithUMGCharacter::AInventoryWithUMGCharacter()
 	// Uncomment the following line to turn motion controllers on by default:
 	//bUsingMotionControllers = true;
 
-	// Category 'My Character' �⺻�� ����
+	// GameHUD 블루프린트 클래스 레퍼런스 설정
+	// 경로 끝에 _C 추가.
+	static ConstructorHelpers::FClassFinder<UGameHUD> GameHUDClassFinder(TEXT("WidgetBlueprint'/Game/UMG/GameHUD.GameHUD_C'"));
+	if (GameHUDClassFinder.Succeeded())
+	{
+		GameHUDClass = GameHUDClassFinder.Class;
+	}
+
+	// Category 'My Character' 기본값 설정
 	HealthValue = 0.75f;
 	EnergyValue = 0.5f;
 	MoodValue = 0.25f;
@@ -108,6 +119,10 @@ void AInventoryWithUMGCharacter::BeginPlay()
 		VR_Gun->SetHiddenInGame(true, true);
 		Mesh1P->SetHiddenInGame(false, true);
 	}
+
+	// GameHUG Widget 생성.
+	GameHUDReference = CreateWidget<UGameHUD>(GetController<APlayerController>(), GameHUDClass);
+	GameHUDReference->AddToViewport();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -119,7 +134,7 @@ void AInventoryWithUMGCharacter::SetupPlayerInputComponent(class UInputComponent
 	check(PlayerInputComponent);
 
 	// Bind jump events
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AInventoryWithUMGCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
@@ -302,4 +317,15 @@ bool AInventoryWithUMGCharacter::EnableTouchscreenMovement(class UInputComponent
 	}
 	
 	return false;
+}
+
+void AInventoryWithUMGCharacter::Jump()
+{
+	Super::Jump();
+
+	// GetCharacterMovement()을 사용하려면, "GameFramework/CharacterMovementComponent.h" 을 include 해야 합니다.
+	if (GetCharacterMovement()->IsFalling() == false)
+	{
+		EnergyValue -= 0.05f;
+	}
 }
