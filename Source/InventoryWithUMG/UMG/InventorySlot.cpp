@@ -2,3 +2,8 @@
 
 #include "InventorySlot.h"
 
+void UInventorySlot::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+}

@@ -14,4 +14,6 @@ class INVENTORYWITHUMG_API UInventorySlot : public UUserWidget
 {
 	GENERATED_BODY()
 	
+protected:
+	virtual void NativeConstruct() override;
 };
