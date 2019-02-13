@@ -88,7 +88,7 @@ AInventoryWithUMGCharacter::AInventoryWithUMGCharacter()
 
 	// GameHUD 블루프린트 클래스 레퍼런스 설정
 	// 경로 끝에 _C 추가.
-	static ConstructorHelpers::FClassFinder<UGameHUD> GameHUDClassFinder(TEXT("WidgetBlueprint'/Game/UMG/GameHUD.GameHUD_C'"));
+	static ConstructorHelpers::FClassFinder<UGameHUD> GameHUDClassFinder(TEXT("WidgetBlueprint'/Game/UMG/BP_GameHUD.BP_GameHUD_C'"));
 	if (GameHUDClassFinder.Succeeded())
 	{
 		GameHUDClass = GameHUDClassFinder.Class;

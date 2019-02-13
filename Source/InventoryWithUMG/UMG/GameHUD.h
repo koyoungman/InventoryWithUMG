@@ -7,7 +7,7 @@
 #include "GameHUD.generated.h"
 
 /**
- * GameHUD 블루프린트에 부모로 설정해 주세요.
+ * BP_GameHUD 블루프린트에 부모로 설정해 주세요.
  */
 UCLASS()
 class INVENTORYWITHUMG_API UGameHUD : public UUserWidget
