@@ -16,4 +16,11 @@ class INVENTORYWITHUMG_API UInventorySlot : public UUserWidget
 	
 protected:
 	virtual void NativeConstruct() override;
+
+private:
+	class UImage* Image;
+
+private:
+	UFUNCTION(BlueprintPure, Category="Bind", Meta = (AllowPrivateAccess = true))
+	struct FSlateBrush GetInventoryImage();
 };
