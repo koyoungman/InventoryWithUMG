@@ -11,11 +11,18 @@ struct FInventory
 	GENERATED_BODY()
 
 public:
+	FInventory()
+	{
+		Item = nullptr;
+		ItemImage = nullptr;
+	}
+
+public:
 	UPROPERTY(EditAnywhere)
-	class AActor* Item = nullptr;
+	AActor* Item;
 
 	UPROPERTY(EditAnywhere)
-	class UTexture2D* ItemImage = nullptr;
+	class UTexture2D* ItemImage;
 
 	UPROPERTY(EditAnywhere)
 	FText PickupText;

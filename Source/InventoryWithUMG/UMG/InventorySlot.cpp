@@ -18,6 +18,11 @@ void UInventorySlot::NativeConstruct()
 	}
 }
 
+void UInventorySlot::SetPickupImage(UTexture2D * Image)
+{
+	PickupImage = Image;
+}
+
 FSlateBrush UInventorySlot::GetInventoryImage()
 {
 	Brush.SetResourceObject(PickupImage);

@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 InventorySlot;
 
+public:
+	void SetPickupImage(UTexture2D* Image);
+
 private:
 	// 함수바인딩을 위해 Pure함수로 작성.
 	UFUNCTION(BlueprintPure, Category="Bind", Meta = (AllowPrivateAccess = true))

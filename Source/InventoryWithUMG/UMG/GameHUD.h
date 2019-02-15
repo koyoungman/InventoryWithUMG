@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Struct/Inventory.h"
 #include "GameHUD.generated.h"
 
 /**
@@ -22,6 +23,9 @@ protected:
 
 private:
 	class UVerticalBox* InventoryMenu;
+	class UVerticalBox* ActionMenu;
+
+	TArray<class UInventorySlot*> Slots;
 
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Character", Meta = (AllowPrivateAccess = true))
@@ -33,6 +37,9 @@ public:
 	class UVerticalBox* GetInventoryMenu() const;
 #pragma endregion
 
+private:
+	TArray<FInventory> Inventory;
+
 public:
 	/**
 	* 프로퍼티 바인딩을 위한 UPROPERTY 선언.
@@ -42,4 +49,17 @@ public:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	ESlateVisibility InventoryVisible;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	ESlateVisibility ActopnMenuVisible;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	FString ActionText;
+
+private:
+	void RefeshInventory();
+
+private:
+	UFUNCTION(Meta = (AllowPrivateAccess = true))
+	void OnSlotButtonWasClicked(int SlotIndex);
 };
