@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Struct/Inventory.h"
+#include "Interface/Action.h"
 #include "GameHUD.generated.h"
 
 /**
  * BP_GameHUD 블루프린트에 부모로 설정해 주세요.
  */
 UCLASS()
-class INVENTORYWITHUMG_API UGameHUD : public UUserWidget
+class INVENTORYWITHUMG_API UGameHUD : public UUserWidget, public IAction
 {
 	GENERATED_BODY()
 
@@ -24,8 +25,13 @@ protected:
 private:
 	class UVerticalBox* InventoryMenu;
 	class UVerticalBox* ActionMenu;
+	class UButton* CancelButton;
+	class UButton* DropButton;
+	class UButton* UseButton;
 
 	TArray<class UInventorySlot*> Slots;
+
+	int32 InventorySlotClicked;
 
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Character", Meta = (AllowPrivateAccess = true))
@@ -54,12 +60,27 @@ public:
 	ESlateVisibility ActopnMenuVisible;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	FString ActionText;
+	FText ActionText;
 
 private:
 	void RefeshInventory();
+	void ActionComplete();
+
 
 private:
 	UFUNCTION(Meta = (AllowPrivateAccess = true))
+	void OnCancelButtonClicked();
+
+	UFUNCTION(Meta = (AllowPrivateAccess = true))
+	void OnDropButtonClicked();
+
+	UFUNCTION(Meta = (AllowPrivateAccess = true))
+	void OnUseButtonClicked();
+
+	UFUNCTION(Meta = (AllowPrivateAccess = true))
 	void OnSlotButtonWasClicked(int SlotIndex);
+
+public:
+//	virtual void UseAction() override;
+	void DropAction_Implementation(AActor* ItemToDrop) override;
 };

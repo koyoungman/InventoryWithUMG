@@ -8,7 +8,7 @@
 
 class UInputComponent;
 
-UCLASS(config=Game)
+UCLASS(config = Game)
 class AInventoryWithUMGCharacter : public ACharacter
 {
 	GENERATED_BODY()

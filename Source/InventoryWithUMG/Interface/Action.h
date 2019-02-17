@@ -22,5 +22,9 @@ class INVENTORYWITHUMG_API IAction
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void DropAction(AActor* ItemToDrop) = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void UseAction();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void DropAction(AActor* ItemToDrop);
 };
