@@ -5,14 +5,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Struct/Inventory.h"
-#include "Interface/Action.h"
 #include "GameHUD.generated.h"
 
 /**
  * BP_GameHUD 블루프린트에 부모로 설정해 주세요.
  */
 UCLASS()
-class INVENTORYWITHUMG_API UGameHUD : public UUserWidget, public IAction
+class INVENTORYWITHUMG_API UGameHUD : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -80,7 +79,4 @@ private:
 	UFUNCTION(Meta = (AllowPrivateAccess = true))
 	void OnSlotButtonWasClicked(int SlotIndex);
 
-public:
-//	virtual void UseAction() override;
-	void DropAction_Implementation(AActor* ItemToDrop) override;
 };

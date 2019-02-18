@@ -3,6 +3,7 @@
 #include "GameHUD.h"
 #include "Components/VerticalBox.h"
 #include "Components/Button.h"
+#include "Interface/Action.h"
 #include "InventoryWithUMGCharacter.h"
 #include "InventorySlot.h"
 
@@ -75,17 +76,34 @@ void UGameHUD::OnCancelButtonClicked()
 	ActionComplete();
 }
 
+/**
+* Drop Button Was Clicked.
+*/
 void UGameHUD::OnDropButtonClicked()
 {
-	//IAction* Action = Cast<IAction>(CharacterReference);
-	//if (nullptr != Action)
-	//{
-	//	Action->DropAction(Inventory[InventorySlotClicked].Item);
-	//}
+	IAction* Action = Cast<IAction>(CharacterReference);
+	if (nullptr != Action)
+	{
+		Action->DropAction(Inventory[InventorySlotClicked].Item);
+		Inventory.RemoveAt(InventorySlotClicked);
+		RefeshInventory();
+		ActionComplete();
+	}
 }
 
+/**
+* Use Button Was Clicked.
+*/
 void UGameHUD::OnUseButtonClicked()
 {
+	IAction* Action = Cast<IAction>(CharacterReference);
+	if (nullptr != Action)
+	{
+		Action->UseAction();
+		Inventory.RemoveAt(InventorySlotClicked);
+		RefeshInventory();
+		ActionComplete();
+	}
 }
 
 /**
@@ -102,16 +120,3 @@ void UGameHUD::OnSlotButtonWasClicked(int SlotClicked)
 	ActopnMenuVisible = ESlateVisibility::Visible;
 	
 }
-
-void UGameHUD::DropAction_Implementation(AActor * ItemToDrop)
-{
-}
-
-//void UGameHUD::UseAction()
-//{
-//}
-//
-//void UGameHUD::DropAction(AActor * ItemToDrop)
-//{
-//}
-//

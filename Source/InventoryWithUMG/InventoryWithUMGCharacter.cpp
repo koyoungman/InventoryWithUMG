@@ -329,3 +329,13 @@ void AInventoryWithUMGCharacter::Jump()
 		EnergyValue -= 0.05f;
 	}
 }
+
+#pragma region IAction
+void AInventoryWithUMGCharacter::UseAction_Implementation()
+{
+}
+
+void AInventoryWithUMGCharacter::DropAction_Implementation(AActor * ItemToDrop)
+{
+}
+#pragma endregion
