@@ -81,10 +81,10 @@ void UGameHUD::OnCancelButtonClicked()
 */
 void UGameHUD::OnDropButtonClicked()
 {
-	IAction* Action = Cast<IAction>(CharacterReference);
-	if (nullptr != Action)
+	// Interface Message Call.
+	if (GetClass()->ImplementsInterface(UAction::StaticClass()))
 	{
-		Action->DropAction(Inventory[InventorySlotClicked].Item);
+		IAction::Execute_DropAction(CharacterReference, Inventory[InventorySlotClicked].Item);
 		Inventory.RemoveAt(InventorySlotClicked);
 		RefeshInventory();
 		ActionComplete();
@@ -96,10 +96,10 @@ void UGameHUD::OnDropButtonClicked()
 */
 void UGameHUD::OnUseButtonClicked()
 {
-	IAction* Action = Cast<IAction>(CharacterReference);
-	if (nullptr != Action)
+	// Interface Message Call.
+	if (GetClass()->ImplementsInterface(UAction::StaticClass()))
 	{
-		Action->UseAction();
+		IAction::Execute_UseAction(CharacterReference);
 		Inventory.RemoveAt(InventorySlotClicked);
 		RefeshInventory();
 		ActionComplete();

@@ -4,13 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Interface/Action.h"
 #include "InventoryWithUMGCharacter.generated.h"
 
 class UInputComponent;
 
 UCLASS(config = Game)
-class AInventoryWithUMGCharacter : public ACharacter, public IAction
+class AInventoryWithUMGCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -161,14 +160,5 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Character")
 	float MoodValue;
-
-#pragma region IAction
-public:
-	/*
-	* IAction Interface.
-	*/
-	void UseAction_Implementation() override;
-	void DropAction_Implementation(AActor* ItemToDrop) override;
-#pragma endregion
 };
 

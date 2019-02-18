@@ -1,4 +1,4 @@
-﻿// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "InventoryWithUMGCharacter.h"
 #include "InventoryWithUMGProjectile.h"
@@ -330,12 +330,3 @@ void AInventoryWithUMGCharacter::Jump()
 	}
 }
 
-#pragma region IAction
-void AInventoryWithUMGCharacter::UseAction_Implementation()
-{
-}
-
-void AInventoryWithUMGCharacter::DropAction_Implementation(AActor * ItemToDrop)
-{
-}
-#pragma endregion
