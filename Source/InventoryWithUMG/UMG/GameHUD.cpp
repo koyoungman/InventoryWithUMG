@@ -24,7 +24,11 @@ void UGameHUD::NativeConstruct()
 	ActionMenu = Cast<UVerticalBox>(GetWidgetFromName("ActionMenu"));
 	CancelButton = Cast<UButton>(GetWidgetFromName("CancelButton"));
 	DropButton = Cast<UButton>(GetWidgetFromName("DropButton"));
-	UseButton = Cast<UButton>(GetWidgetFromName("DropButton"));
+	UseButton = Cast<UButton>(GetWidgetFromName("UseButton"));
+
+	CancelButton->OnClicked.AddDynamic(this, &UGameHUD::OnCancelButtonClicked);
+	DropButton->OnClicked.AddDynamic(this, &UGameHUD::OnDropButtonClicked);
+	UseButton->OnClicked.AddDynamic(this, &UGameHUD::OnUseButtonClicked);
 	
 	Slots.Add(Cast<UInventorySlot>(GetWidgetFromName("Slot_0")));
 	Slots.Add(Cast<UInventorySlot>(GetWidgetFromName("Slot_1")));
@@ -43,6 +47,11 @@ void UGameHUD::NativeConstruct()
 UVerticalBox* UGameHUD::GetInventoryMenu() const
 {
 	return InventoryMenu;
+}
+
+TArray<FInventory>& UGameHUD::GetInventory()
+{
+	return Inventory;
 }
 
 void UGameHUD::RefeshInventory()
@@ -82,12 +91,16 @@ void UGameHUD::OnCancelButtonClicked()
 void UGameHUD::OnDropButtonClicked()
 {
 	// Interface Message Call.
-	if (GetClass()->ImplementsInterface(UAction::StaticClass()))
+	if (CharacterReference->GetClass()->ImplementsInterface(UAction::StaticClass()))
 	{
 		IAction::Execute_DropAction(CharacterReference, Inventory[InventorySlotClicked].Item);
 		Inventory.RemoveAt(InventorySlotClicked);
 		RefeshInventory();
 		ActionComplete();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CharacterReference->GetClass()->ImplementsInterface(UAction::StaticClass()) == false"));
 	}
 }
 
@@ -97,12 +110,16 @@ void UGameHUD::OnDropButtonClicked()
 void UGameHUD::OnUseButtonClicked()
 {
 	// Interface Message Call.
-	if (GetClass()->ImplementsInterface(UAction::StaticClass()))
+	if (Inventory[InventorySlotClicked].Item->GetClass()->ImplementsInterface(UAction::StaticClass()))
 	{
-		IAction::Execute_UseAction(CharacterReference);
+		IAction::Execute_UseAction(Inventory[InventorySlotClicked].Item);
 		Inventory.RemoveAt(InventorySlotClicked);
 		RefeshInventory();
 		ActionComplete();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CharacterReference->GetClass()->ImplementsInterface(UAction::StaticClass()) == false"));
 	}
 }
 

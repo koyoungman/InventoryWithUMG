@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/ArrowComponent.h"
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,7 +14,10 @@
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "InventoryWithUMGHUD.h"
 #include "UMG/GameHUD.h"
+
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -82,6 +86,10 @@ AInventoryWithUMGCharacter::AInventoryWithUMGCharacter()
 	VR_MuzzleLocation->SetupAttachment(VR_Gun);
 	VR_MuzzleLocation->SetRelativeLocation(FVector(0.000004, 53.999992, 10.000000));
 	VR_MuzzleLocation->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));		// Counteract the rotation of the VR gun model.
+
+	DropLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("DropLocation"));
+	DropLocation->SetupAttachment(GetCapsuleComponent());
+	DropLocation->SetRelativeLocation(FVector(60.0f, 0.0f, -100.0f));
 
 	// Uncomment the following line to turn motion controllers on by default:
 	//bUsingMotionControllers = true;
@@ -156,6 +164,9 @@ void AInventoryWithUMGCharacter::SetupPlayerInputComponent(class UInputComponent
 	PlayerInputComponent->BindAxis("TurnRate", this, &AInventoryWithUMGCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AInventoryWithUMGCharacter::LookUpAtRate);
+
+	PlayerInputComponent->BindKey("I", EInputEvent::IE_Pressed, this, &AInventoryWithUMGCharacter::OnKeyI_Pressed);
+	PlayerInputComponent->BindKey("E", EInputEvent::IE_Pressed, this, &AInventoryWithUMGCharacter::OnKeyE_Pressed);
 }
 
 void AInventoryWithUMGCharacter::OnFire()
@@ -328,5 +339,92 @@ void AInventoryWithUMGCharacter::Jump()
 	{
 		EnergyValue -= 0.05f;
 	}
+}
+
+/**
+* Toggle Inventory Menu.
+*/
+void AInventoryWithUMGCharacter::OnKeyI_Pressed()
+{
+	if (GameHUDReference->ActivateInventory)
+	{
+		if (PressIKeyFlipFlop.Switch())
+		{
+			GameHUDReference->InventoryVisible = ESlateVisibility::Visible;
+			EnableMouseCursor();
+		}
+		else
+		{
+			GameHUDReference->InventoryVisible = ESlateVisibility::Hidden;
+			DisableMouseCursor();
+		}
+	}
+}
+
+/**
+* Pickup Items.
+*/
+void AInventoryWithUMGCharacter::OnKeyE_Pressed()
+{
+	if (GameHUDReference->GetInventory().Num() < 5)
+	{
+		OnPickupItem.Broadcast();
+	}
+}
+
+void AInventoryWithUMGCharacter::EnableMouseCursor()
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (nullptr == PlayerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetWorld()->GetFirstPlayerController() == nullptr"));
+		return;
+	}
+
+	FInputModeGameAndUI InputModeGameAndUI;
+	InputModeGameAndUI.SetWidgetToFocus(GameHUDReference->TakeWidget());
+
+	// Set Input Mode Game and UI
+	PlayerController->SetInputMode(FInputModeGameAndUI());
+
+	AInventoryWithUMGHUD* Hud = Cast<AInventoryWithUMGHUD>(PlayerController->GetHUD());
+	if (nullptr != Hud)
+	{
+		Hud->ShowCrosshairs = false;
+		PlayerController->bShowMouseCursor = true;
+	}
+}
+
+void AInventoryWithUMGCharacter::DisableMouseCursor()
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (nullptr == PlayerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetWorld()->GetFirstPlayerController() == nullptr"));
+		return;
+	}
+
+
+	// Set Input Mode Game and UI
+	PlayerController->SetInputMode(FInputModeGameOnly());
+
+	AInventoryWithUMGHUD* Hud = Cast<AInventoryWithUMGHUD>(PlayerController->GetHUD());
+	if (nullptr != Hud)
+	{
+		Hud->ShowCrosshairs = true;
+		PlayerController->bShowMouseCursor = false;
+	}
+}
+
+UGameHUD * AInventoryWithUMGCharacter::GetGameHUDReference() const
+{
+	return GameHUDReference;
+}
+
+void AInventoryWithUMGCharacter::DropAction_Implementation(AActor * ItemToDrop)
+{
+	ItemToDrop->SetActorHiddenInGame(false);
+	ItemToDrop->SetActorEnableCollision(true);
+	ItemToDrop->SetActorTransform(DropLocation->GetComponentTransform());
 }
 

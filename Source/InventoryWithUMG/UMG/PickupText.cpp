@@ -1,15 +1,18 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PickupText.h"
 #include "Engine/Classes/GameFramework/Actor.h"
 
 void UPickupText::NativeConstruct()
 {
+	Super::NativeConstruct();
 }
 
 // 별로 좋지 않은 방법. 일단은 강좌 대로 함.
 void UPickupText::NativeTick(const FGeometry & MyGeometry, float InDeltaTime)
 {
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
 	if (PickupActor.IsValid() == false)
 		return;
 	

@@ -4,12 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/Action.h"
+#include "FlipFlop.h"
 #include "InventoryWithUMGCharacter.generated.h"
+
+// 이벤트 디스패처 데이터형 선언.
+DECLARE_MULTICAST_DELEGATE(FPickupItem)
 
 class UInputComponent;
 
 UCLASS(config = Game)
-class AInventoryWithUMGCharacter : public ACharacter
+class AInventoryWithUMGCharacter : public ACharacter, public IAction
 {
 	GENERATED_BODY()
 
@@ -44,6 +49,9 @@ class AInventoryWithUMGCharacter : public ACharacter
 	/** Motion controller (left hand) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UMotionControllerComponent* L_MotionController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UArrowComponent* DropLocation;
 
 public:
 	AInventoryWithUMGCharacter();
@@ -142,6 +150,13 @@ public:
 public:
 	virtual void Jump() override;
 
+	void OnKeyI_Pressed();
+	void OnKeyE_Pressed();
+
+	void EnableMouseCursor();
+	void DisableMouseCursor();
+
+	class UGameHUD* GetGameHUDReference() const;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UMG, Meta = (AllowPrivateAccess = true))
@@ -160,5 +175,22 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Character")
 	float MoodValue;
+
+
+public:
+	FPickupItem OnPickupItem;
+
+
+#pragma region IAction
+public:
+	/*
+	* IAction Interface.
+	*/
+	void DropAction_Implementation(AActor* ItemToDrop) override;
+#pragma endregion
+
+private:
+	FFlipFlop PressIKeyFlipFlop;
+
 };
 

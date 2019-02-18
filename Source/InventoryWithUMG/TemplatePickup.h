@@ -70,10 +70,10 @@ protected:
 
 public:
 	UFUNCTION(BlueprintPure)
-	bool GetIsInRange() const;
-
-	UFUNCTION(BlueprintPure)
 	const FInventory& GetItemInfo() const;
+
+private:
+	void OnPickupItem();
 
 #pragma region IAction
 public:

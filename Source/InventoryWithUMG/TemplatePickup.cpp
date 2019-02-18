@@ -7,6 +7,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "UMG/PickupText.h"
 #include "InventoryWithUMGCharacter.h"
+#include "UMG/GameHUD.h"
 
 // Sets default values
 ATemplatePickup::ATemplatePickup()
@@ -65,7 +66,7 @@ void ATemplatePickup::BeginPlay()
 	// Set members in inventoryStruct.
 	ItemInfo.Item = this;
 
-	PickupTextReference->PickupActor = ItemInfo.Item;
+	PickupTextReference->PickupActor = TWeakObjectPtr<AActor>(ItemInfo.Item);
 	PickupTextReference->PickupText = ItemInfo.PickupText;
 
 	// GetPlayerChatacter(PlayerIndex : 0)
@@ -73,8 +74,15 @@ void ATemplatePickup::BeginPlay()
 
 	// Cast To FirstPersonCharacter
 	AInventoryWithUMGCharacter* FirstPersonCharacter = Cast<AInventoryWithUMGCharacter>(PlayerCharacter);
-	if (nullptr != FirstPersonCharacter)
-		CharacterReference = FirstPersonCharacter;
+	if (nullptr == FirstPersonCharacter)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cast<AInventoryWithUMGCharacter>(PlayerCharacter) == nullptr"));
+		return;
+	}
+		
+	CharacterReference = FirstPersonCharacter;
+
+	CharacterReference->OnPickupItem.AddUObject(this, &ATemplatePickup::OnPickupItem);
 
 }
 
@@ -110,14 +118,25 @@ void ATemplatePickup::OnEndOverlap(UPrimitiveComponent * OverlappedComponent, AA
 }
 #pragma endregion
 
-bool ATemplatePickup::GetIsInRange() const
-{
-	return IsInRange;
-}
-
 const FInventory & ATemplatePickup::GetItemInfo() const
 {
 	return ItemInfo;
+}
+
+/**
+* Pickup and add items to the inventory then refresh it.
+*/
+void ATemplatePickup::OnPickupItem()
+{
+	if (GetActorEnableCollision() && IsInRange)
+	{
+		UGameHUD* GameHUDReference = CharacterReference->GetGameHUDReference();
+		GameHUDReference->GetInventory().Add(ItemInfo);
+		PickupTextReference->RemoveFromParent();
+		SetActorHiddenInGame(true);
+		SetActorEnableCollision(false);
+		GameHUDReference->RefeshInventory();
+	}
 }
 
 void ATemplatePickup::UseAction_Implementation()

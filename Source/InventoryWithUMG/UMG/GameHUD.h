@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -40,6 +40,9 @@ private:
 public:
 	UFUNCTION(BlueprintPure)
 	class UVerticalBox* GetInventoryMenu() const;
+
+	UFUNCTION(BlueprintPure)
+	TArray<FInventory>& GetInventory();
 #pragma endregion
 
 private:
@@ -61,8 +64,10 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	FText ActionText;
 
-private:
+public:
 	void RefeshInventory();
+
+private:
 	void ActionComplete();
 
 
