@@ -27,6 +27,9 @@ ATemplatePickup::ATemplatePickup()
 	Trigger->SetRelativeScale3D(FVector(8.0f, 8.0f, 8.0f));
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATemplatePickup::OnBeginOverlap);
 	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATemplatePickup::OnEndOverlap);
+	Trigger->SetCollisionProfileName(TEXT("Custom"));
+	// Projectile Collision Ignore.
+	Trigger->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMeshFinder(TEXT("StaticMesh'/Game/StarterContent/Shapes/Shape_Cylinder.Shape_Cylinder'"));
 	if (StaticMeshFinder.Succeeded())
