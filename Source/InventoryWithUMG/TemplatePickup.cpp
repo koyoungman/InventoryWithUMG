@@ -21,7 +21,7 @@ ATemplatePickup::ATemplatePickup()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(RootComponent);
 	StaticMesh->SetRelativeScale3D(FVector(0.25f, 0.25f, 0.25f));
-
+	
 	Trigger = CreateDefaultSubobject<USphereComponent>(TEXT("Trigger"));
 	Trigger->SetupAttachment(RootComponent);
 	Trigger->SetRelativeScale3D(FVector(8.0f, 8.0f, 8.0f));
@@ -32,15 +32,16 @@ ATemplatePickup::ATemplatePickup()
 	if (StaticMeshFinder.Succeeded())
 	{
 		StaticMesh->SetStaticMesh(StaticMeshFinder.Object);
+		CustomStaticMesh = StaticMeshFinder.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UTexture2D> ItemImageFinder(TEXT("Texture2D'/Game/Textures/Can.Can'"));
 	if (ItemImageFinder.Succeeded())
 	{
-		ItemInfo.ItemImage = ItemImageFinder.Object;
+		CustomImage = ItemInfo.ItemImage = ItemImageFinder.Object;
 	}
-	ItemInfo.PickupText = FText::FromString(TEXT("Canned Beans"));
-	ItemInfo.ActionText = FText::FromString(TEXT("Eat Beans"));
+	CustomPickupText = ItemInfo.PickupText = FText::FromString(TEXT("Canned Beans"));
+	CustomActionText = ItemInfo.ActionText = FText::FromString(TEXT("Eat Beans"));
 
 	AddHealth = 0.25f;
 	AddEnergy = 0.25f;
@@ -53,6 +54,19 @@ ATemplatePickup::ATemplatePickup()
 	{
 		PickupTextClass = PickupTextClassFinder.Class;
 	}
+}
+
+/**
+* BP Construction Script
+*/
+void ATemplatePickup::OnConstruction(const FTransform & Transform)
+{
+	ItemInfo.Item = this;
+	ItemInfo.ItemImage = CustomImage;
+	ItemInfo.PickupText = CustomPickupText;
+	ItemInfo.ActionText = CustomActionText;
+
+	StaticMesh->SetStaticMesh(CustomStaticMesh);
 }
 
 // Called when the game starts or when spawned

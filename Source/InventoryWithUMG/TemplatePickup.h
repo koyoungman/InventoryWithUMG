@@ -36,6 +36,7 @@ public:
 
 
 protected:
+	virtual void OnConstruction(const FTransform& Transform) override;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -46,6 +47,8 @@ public:
 
 protected:
 	bool IsInRange;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, Meta = (AllowPrivateAccess = true))
 	TWeakObjectPtr<class AInventoryWithUMGCharacter> CharacterReference;
 
 protected:
@@ -57,16 +60,29 @@ protected:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FInventory ItemInfo;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AddHealth;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AddEnergy;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AddMood;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FInventory ItemInfo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UTexture2D* CustomImage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText CustomPickupText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText CustomActionText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UStaticMesh* CustomStaticMesh;
 
 public:
 	UFUNCTION(BlueprintPure)

@@ -43,6 +43,10 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	TArray<FInventory>& GetInventory();
+
+	UFUNCTION(BlueprintNativeEvent)
+	UWidgetAnimation* GetMenuAnim() const;
+	virtual UWidgetAnimation* GetMenuAnim_Implementation() const;
 #pragma endregion
 
 private:

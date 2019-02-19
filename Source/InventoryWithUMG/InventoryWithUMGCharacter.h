@@ -158,6 +158,9 @@ public:
 
 	class UGameHUD* GetGameHUDReference() const;
 
+	void OnDelayHiddenGameHUD();
+	void OnClearTimer();
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UMG, Meta = (AllowPrivateAccess = true))
 	TSubclassOf<class UGameHUD> GameHUDClass;
@@ -191,6 +194,10 @@ public:
 
 private:
 	FFlipFlop PressIKeyFlipFlop;
+
+	struct FTimerHandle TimerHandle;
+
+	bool MenuOpen;
 
 };
 

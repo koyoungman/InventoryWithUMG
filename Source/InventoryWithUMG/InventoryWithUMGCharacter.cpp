@@ -4,9 +4,11 @@
 #include "InventoryWithUMGProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Animation/WidgetAnimation.h"
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -171,50 +173,54 @@ void AInventoryWithUMGCharacter::SetupPlayerInputComponent(class UInputComponent
 
 void AInventoryWithUMGCharacter::OnFire()
 {
-	// try and fire a projectile
-	if (ProjectileClass != NULL)
+	if (MenuOpen != true)
 	{
-		UWorld* const World = GetWorld();
-		if (World != NULL)
+		// try and fire a projectile
+		if (ProjectileClass != NULL)
 		{
-			if (bUsingMotionControllers)
+			UWorld* const World = GetWorld();
+			if (World != NULL)
 			{
-				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
-				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-				World->SpawnActor<AInventoryWithUMGProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+				if (bUsingMotionControllers)
+				{
+					const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
+					const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
+					World->SpawnActor<AInventoryWithUMGProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+				}
+				else
+				{
+					const FRotator SpawnRotation = GetControlRotation();
+					// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+					const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+
+					//Set Spawn Collision Handling Override
+					FActorSpawnParameters ActorSpawnParams;
+					ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+					// spawn the projectile at the muzzle
+					World->SpawnActor<AInventoryWithUMGProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				}
 			}
-			else
+		}
+
+		// try and play the sound if specified
+		if (FireSound != NULL)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+		}
+
+		// try and play a firing animation if specified
+		if (FireAnimation != NULL)
+		{
+			// Get the animation object for the arms mesh
+			UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+			if (AnimInstance != NULL)
 			{
-				const FRotator SpawnRotation = GetControlRotation();
-				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-				const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
-
-				//Set Spawn Collision Handling Override
-				FActorSpawnParameters ActorSpawnParams;
-				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-				// spawn the projectile at the muzzle
-				World->SpawnActor<AInventoryWithUMGProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				AnimInstance->Montage_Play(FireAnimation, 1.f);
 			}
 		}
 	}
 
-	// try and play the sound if specified
-	if (FireSound != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// try and play a firing animation if specified
-	if (FireAnimation != NULL)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if (AnimInstance != NULL)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
-	}
 }
 
 void AInventoryWithUMGCharacter::OnResetVR()
@@ -346,20 +352,53 @@ void AInventoryWithUMGCharacter::Jump()
 */
 void AInventoryWithUMGCharacter::OnKeyI_Pressed()
 {
-	if (GameHUDReference->ActivateInventory)
+	if (GameHUDReference->ActivateInventory && (TimerHandle.IsValid() == false))
 	{
 		if (PressIKeyFlipFlop.Switch())
 		{
 			GameHUDReference->InventoryVisible = ESlateVisibility::Visible;
 			EnableMouseCursor();
+
+			UWidgetAnimation* MenuAnim = GameHUDReference->GetMenuAnim();
+			if (nullptr != MenuAnim)
+			{
+				GameHUDReference->PlayAnimation(MenuAnim);
+			}
+
+			GetWorldTimerManager().SetTimer(TimerHandle, this, &AInventoryWithUMGCharacter::OnClearTimer, 0.5f, false);
+
+			MenuOpen = true;
 		}
 		else
 		{
-			GameHUDReference->InventoryVisible = ESlateVisibility::Hidden;
-			DisableMouseCursor();
+			UWidgetAnimation* MenuAnim = GameHUDReference->GetMenuAnim();
+			if (nullptr != MenuAnim)
+			{
+				GameHUDReference->PlayAnimation(MenuAnim, 0.0f, 1, EUMGSequencePlayMode::Reverse);
+
+				GetWorldTimerManager().SetTimer(TimerHandle, this, &AInventoryWithUMGCharacter::OnDelayHiddenGameHUD, 1.0f, false);
+			}
+			else
+			{
+				OnDelayHiddenGameHUD();
+			}
 		}
 	}
 }
+
+void AInventoryWithUMGCharacter::OnClearTimer()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+}
+
+void AInventoryWithUMGCharacter::OnDelayHiddenGameHUD()
+{
+	GameHUDReference->InventoryVisible = ESlateVisibility::Hidden;
+	DisableMouseCursor();
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+	MenuOpen = false;
+}
+
 
 /**
 * Pickup Items.

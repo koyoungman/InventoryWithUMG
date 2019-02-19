@@ -54,6 +54,11 @@ TArray<FInventory>& UGameHUD::GetInventory()
 	return Inventory;
 }
 
+UWidgetAnimation * UGameHUD::GetMenuAnim_Implementation() const
+{
+	return nullptr;
+}
+
 void UGameHUD::RefeshInventory()
 {
 	ActivateInventory = true;
